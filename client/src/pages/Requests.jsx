@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import api from "../utils/api";
 import { useAuth } from "../utils/AuthProvider";
-import { useSocket } from "../utils/SocketProvider";
 
 export default function Requests() {
   const [requests, setRequests] = useState([]);
@@ -27,9 +26,8 @@ export default function Requests() {
       const { data } = await api.get("/requests");
       const requestsData = Array.isArray(data) ? data : data.requests;
 
-      if (!Array.isArray(requestsData)) {
+      if (!Array.isArray(requestsData))
         throw new Error("Invalid requests API response");
-      }
 
       setRequests((prev) => {
         const merged = [...requestsData];
@@ -145,7 +143,6 @@ export default function Requests() {
     };
   }, [search, username]);
 
-  // Send friend request
   const sendRequest = async (selectedUsername) => {
     if (!selectedUsername || sending[selectedUsername]) return;
 
@@ -159,22 +156,21 @@ export default function Requests() {
         username: selectedUsername,
       });
 
-      console.log(data);
+      const newRequest = data.request || data;
 
-      // Add returned request to the list
-      if (data.success)
+      if (data.success && newRequest.id) {
         setRequests((prev) => {
-          if (prev.some((item) => item.id === data.id)) return prev;
-          return [data, ...prev];
-        });
+          if (prev.some((item) => item.id === newRequest.id)) return prev;
 
-      // Remove the user from search results
+          return [newRequest, ...prev];
+        });
+      }
+
       setSearchResults((prev) =>
         prev.filter((user) => user.username !== selectedUsername),
       );
     } catch (err) {
-      console.error("Failed to send friend request:", err);
-
+      console.error("Failed to send request:", err);
       alert(err.response?.data?.message || "Failed to send friend request.");
     } finally {
       setSending((prev) => ({
