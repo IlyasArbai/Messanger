@@ -156,6 +156,8 @@ export default function Requests() {
         username: selectedUsername,
       });
 
+      console.log("SEND REQUEST RESPONSE:", JSON.stringify(data, null, 2));
+
       const newRequest = data.request || data;
 
       if (data.success && newRequest.id) {
