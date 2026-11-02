@@ -1,0 +1,71 @@
+name: messanger
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:?Set VITE_API_URL}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - frontend
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -O
+        - /dev/null
+        - http://127.0.0.1:8080/
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
+      REDIS_HOST: central-redis
+      REDIS_PORT: "6379"
+      REDIS_USERNAME: ${REDIS_USERNAME:?Set REDIS_USERNAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+      CLIENT_API: ${CLIENT_ORIGIN:?Set CLIENT_ORIGIN}
+    ports:
+      - "127.0.0.1:3001:3000"
+    networks:
+      - frontend
+      - redis-network
+      - postgres-network
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  frontend:
+
+  redis-network:
+    external: true
+
+  postgres-network:
+    external: true
