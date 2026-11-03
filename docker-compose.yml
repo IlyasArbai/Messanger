@@ -8,8 +8,9 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL:?Set VITE_API_URL}
     restart: unless-stopped
+    container_name: messanger-client
     ports:
-      - "127.0.0.1:8081:8080"
+      - "127.0.0.1:8080:3000"
     depends_on:
       server:
         condition: service_healthy
@@ -33,6 +34,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
     restart: unless-stopped
+    container_name: messanger-server
     environment:
       NODE_ENV: production
       PORT: "3000"
@@ -66,6 +68,5 @@ networks:
 
   redis-network:
     external: true
-
   postgres-network:
     external: true

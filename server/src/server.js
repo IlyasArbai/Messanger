@@ -40,7 +40,8 @@ app.use("/requests", RequestsRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({
-    status: "ok",
+    status: "ok updated2",
+    project: "messanger-server",
   });
 });
 
@@ -55,6 +56,6 @@ app.get("/ip", (req, res) => {
 await connectRedis();
 initSocket(httpServer);
 
-httpServer.listen(3000, () => {
+httpServer.listen(process.env.PORT, () => {
   console.log("Server is running on port 3000");
 });
