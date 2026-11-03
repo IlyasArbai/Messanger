@@ -30,6 +30,4 @@ COPY --from=build --chown=node:node /app/prisma.config.ts ./prisma.config.ts
 
 USER node
 
-EXPOSE 3000
-
 CMD ["node", "src/server.js"]

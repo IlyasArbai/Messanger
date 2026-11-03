@@ -20,6 +20,5 @@ RUN npm install -g serve
 COPY --from=build --chown=node:node /app/dist ./dist
 ENV NODE_ENV=production
 USER node
-EXPOSE 8080
 
-CMD ["serve", "-s", "dist", "-l", "8080"]
+CMD ["serve", "-s", "dist", "-l", "3000", "-n"]
